@@ -58,10 +58,11 @@ username STRING NOT NULL UNIQUE
 )
 `;
 
-db.exec(query);*/
+db.exec(query); */
+
 const data = [
-  { name: "marcel", username: "cielo" },
-  { name: "camila", username: "cami" },
+  { name: "Lau", username: "Lulu" },
+  { name: "Ximena", username: "Jime" },
 ];
 
 // Preparamos la consulta de inserción
@@ -75,7 +76,7 @@ const insertMany = db.transaction((users) => {
 });
 
 // Ejecutamos la inserción
-insertMany(data);
+insertMany(data)
 
 // Cerramos la conexión a la base de datos.
 db.close();
