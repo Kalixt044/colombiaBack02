@@ -58,11 +58,31 @@ username STRING NOT NULL UNIQUE
 )
 `;
 
-db.exec(query); */
+db.exec(query);*/ 
+
+// **Creación de la tabla Person** //
+
+/*const createPersonTable = `
+CREATE TABLE IF NOT EXISTS person (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  alias TEXT NOT NULL,
+  activity TEXT,
+  country TEXT,
+  userId INTEGER,
+  FOREIGN KEY (userId) REFERENCES users(id)
+);
+`;
+*/
+try {
+  db.exec(createPersonTable);
+  console.log('Tabla "person" creada o ya existe.');
+} catch (err) {
+  console.error('Error creando la tabla "person":', err);
+}
 
 const data = [
-  { name: "Lau", username: "Lulu" },
-  { name: "Ximena", username: "Jime" },
+  { name: "Lorena", username: "Lore" },
+  { name: "nikki", username: "nicol" },
 ];
 
 // Preparamos la consulta de inserción
@@ -79,4 +99,5 @@ const insertMany = db.transaction((users) => {
 insertMany(data)
 
 // Cerramos la conexión a la base de datos.
-db.close();
+/*db.close();
+*/
