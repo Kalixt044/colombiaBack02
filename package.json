@@ -9,7 +9,7 @@
     "dev": "nodemon ./src/index.js"
   },
   "keywords": [],
-  "author": "Aprendiz Digital I J Gallardo navarro",
+  "author": "Aprendiz Digital I J Gallardo Navarro",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.2",
