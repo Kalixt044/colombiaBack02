@@ -20,3 +20,5 @@ export const login = (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+// No necesitamos la línea "export default login;" aquí

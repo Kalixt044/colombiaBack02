@@ -3,7 +3,8 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { db } from './database.js';
-import { login } from './endpoints/index.js';
+import * as endpoints from './endpoints/index.js';
+import jwt from 'jsonwebtoken';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -25,7 +26,6 @@ CREATE TABLE IF NOT EXISTS users (
   password TEXT NOT NULL
 );
 `;
-
 try {
   db.exec(createUsersTable);
   console.log('Tabla "users" creada o ya existe.');
@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS person (
   FOREIGN KEY (userId) REFERENCES users(id)
 );
 `;
-
 try {
   db.exec(createPersonTable);
   console.log('Tabla "person" creada o ya existe.');
@@ -56,9 +55,68 @@ app.get('/', (req, res) => {
   res.send('Servidor Proyecto Final');
 });
 
-// Aquí van tus otras rutas y middleware...
+// Ruta de login actualizada
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
 
-app.post('/login', login);
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+
+  try {
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generar token JWT
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      'tu_secreto_jwt', // Cambia esto por una clave secreta más segura
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({ 
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      },
+      token 
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Ruta de registro
+app.post('/register', (req, res) => {
+  const { firstName, lastName, email, phone, password } = req.body;
+
+  if (!firstName || !lastName || !email || !password) {
+    return res.status(400).json({ message: 'Todos los campos son requeridos' });
+  }
+
+  try {
+    const existingUser = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'El email ya está registrado' });
+    }
+
+    const insert = db.prepare('INSERT INTO users (firstName, lastName, email, phone, password) VALUES (?, ?, ?, ?, ?)');
+    insert.run(firstName, lastName, email, phone, password);
+
+    res.status(201).json({ message: 'Usuario registrado exitosamente' });
+  } catch (error) {
+    console.error('Error en el registro:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
 
 const PORT = process.env.PORT || 8050;
 app.listen(PORT, () => {
